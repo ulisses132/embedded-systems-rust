@@ -1,10 +1,19 @@
+struct ControladorTemperatura {
+    limite_ligar: f64,
+    limite_desligar: f64,
+    ventoinha_ligada: bool,
+}
+
 fn main() {
-    // Dia 1: implementa aqui o exercício descrito no README.md.
-    let temperaturas = [27.0, 31.0, 150.0, 29.0, -50.0, 27.5, 32.0]; // Exemplo de temperatura em Celsius
+    let temperaturas = [27.0, 31.0, 35.0, 31.0, 27.0]; // Exemplo de temperatura em Celsius
+
     let mut contador_ciclos = 0;
-    let mut ventoinha_ligada = false;
-    let mut estado_anterior = ventoinha_ligada;
+
+    let mut controlador_a = ControladorTemperatura::new(30.0, 28.0);
+    let mut controlador_b = ControladorTemperatura::new(34.0, 32.0);
+
     let mut contador_valido = 0;
+
     let mut contador_invalido = 0;
 
     for temperatura in temperaturas {
@@ -24,19 +33,11 @@ fn main() {
 
         println!("Ciclo {} - Temperatura: {}°C", contador_ciclos, temperatura);
 
-        ventoinha_ligada = atualizar_estado_ventoinha(temperatura, ventoinha_ligada);
+        controlador_a.atualizar_estado_ventoinha(temperatura);
+        controlador_b.atualizar_estado_ventoinha(temperatura);
 
-        if ventoinha_ligada != estado_anterior {
-            println!(
-                "Evento: ventoinha mudou de estado para {}",
-                if ventoinha_ligada {
-                    "ligada"
-                } else {
-                    "desligada"
-                }
-            );
-        }
-        estado_anterior = ventoinha_ligada;
+        println!("Ventoinha A ligada: {}", controlador_a.ventoinha_ligada);
+        println!("Ventoinha B ligada: {}", controlador_b.ventoinha_ligada);
     }
 
     println!("Ciclos válidos: {}", contador_valido);
@@ -51,15 +52,20 @@ fn temperatura_valida(temperatura: f64) -> bool {
     temperatura >= limite_inferior && temperatura <= limite_superior
 }
 
-fn atualizar_estado_ventoinha(temperatura: f64, ventoinha_ligada: bool) -> bool {
-    let limite_ligar = 30.0; // Limite superior para ligar ventoinha
-    let limite_desligar = 28.0; // Limite inferior para desligar ventoinha
+impl ControladorTemperatura {
+    fn atualizar_estado_ventoinha(&mut self, temperatura: f64) {
+        if temperatura > self.limite_ligar {
+            self.ventoinha_ligada = true;
+        } else if temperatura < self.limite_desligar {
+            self.ventoinha_ligada = false;
+        }
+    }
 
-    if temperatura > limite_ligar {
-        true
-    } else if temperatura < limite_desligar {
-        false
-    } else {
-        ventoinha_ligada
+    fn new(limite_ligar: f64, limite_desligar: f64) -> Self {
+        ControladorTemperatura {
+            limite_ligar,
+            limite_desligar,
+            ventoinha_ligada: false,
+        }
     }
 }
